@@ -106,5 +106,11 @@ module.exports = {
       files: ["./src/vite-env.d.ts"],
       rules: { "@typescript-eslint/naming-convention": "off" },
     },
+    {
+      files: ["./src/Pages/*"],
+      rules: {
+        "import/no-default-export": "off",
+      },
+    },
   ],
 };
