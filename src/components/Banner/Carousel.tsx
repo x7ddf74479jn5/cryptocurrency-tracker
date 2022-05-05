@@ -44,7 +44,12 @@ export const Carousel: React.FC = () => {
   const { currency, symbol } = useCurrencySelector();
   const { data: trendingCoins } = useTrendingCoins(currency);
 
-  const items = trendingCoins?.map((coin) => {
+  if (trendingCoins === undefined) {
+    // suspense mode always returns response of fetcher
+    throw new Error("trendingCoins is undefined");
+  }
+
+  const items = trendingCoins.map((coin) => {
     const isProfit = coin?.price_change_percentage_24h >= 0;
 
     return (

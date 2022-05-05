@@ -13,9 +13,10 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/system";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { Suspense, useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { Center } from "@/components/UI/Center";
 import { useCurrencySelector, useCurrencyState } from "@/globalStates/currencyState";
 import { useCoinList } from "@/usecases/coin";
 import { numberWithCommas } from "@/utils";
@@ -46,12 +47,17 @@ export const CoinsTable: React.FC = () => {
   const { symbol } = useCurrencySelector();
   const { data: coins } = useCoinList(currency);
 
+  if (coins === undefined) {
+    // suspense mode always returns response of fetcher
+    throw new Error("coins is undefined");
+  }
+
   const handleChangeSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value.toLowerCase());
   };
 
   const filteredCoins = useMemo(() => {
-    return coins?.filter(
+    return coins.filter(
       (coin) => coin.name.toLowerCase().includes(search) || coin.symbol.toLowerCase().includes(search)
     );
   }, [coins, search]);
@@ -82,9 +88,13 @@ export const CoinsTable: React.FC = () => {
         onChange={handleChangeSearch}
       />
       <TableContainer component={Paper}>
-        {!coins ? (
-          <LinearProgress sx={{ backgroundColor: "gold" }} />
-        ) : (
+        <Suspense
+          fallback={
+            <Center>
+              <LinearProgress style={{ backgroundColor: "gold" }} />
+            </Center>
+          }
+        >
           <Table aria-label="simple table">
             <TableHead sx={{ backgroundColor: "#EEBC1D" }}>
               <TableRow>
@@ -157,7 +167,7 @@ export const CoinsTable: React.FC = () => {
               })}
             </TableBody>
           </Table>
-        )}
+        </Suspense>
       </TableContainer>
 
       <Pagination

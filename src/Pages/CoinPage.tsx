@@ -1,8 +1,10 @@
-import { Button, LinearProgress, Typography } from "@mui/material";
+import { Button, CircularProgress, LinearProgress, Typography } from "@mui/material";
 import { styled } from "@mui/system";
+import { Suspense } from "react";
 import { useParams } from "react-router-dom";
 
 import { CoinInfo } from "@/components/CoinInfo";
+import { Center } from "@/components/UI/Center";
 import { useAlertMutator } from "@/globalStates/alertState";
 import { useCurrencySelector, useCurrencyState } from "@/globalStates/currencyState";
 import { useUserState } from "@/globalStates/userState";
@@ -57,25 +59,36 @@ const Heading = styled(Typography)({ fontWeight: "bold", marginBottom: "20px", f
 
 const GoldTypography = styled(Typography)({ fontFamily: "Montserrat", color: "gold" });
 
-const CoinPage = () => {
+const CoinPage: React.FC = () => {
   const { id } = useParams();
   if (!id) throw new Error("No coin id provided");
 
   const { symbol } = useCurrencySelector();
   const currency = useCurrencyState();
-  const { data: coin } = useSingleCoin(id);
   const setAlert = useAlertMutator();
-
   const user = useUserState();
-  const { data: watchList } = useWatchList(user?.uid);
-  const coins = watchList?.coins || [];
 
-  if (!coin) return <LinearProgress style={{ backgroundColor: "gold" }} />; //loading to process & avoid error
+  const { data: coin } = useSingleCoin(id);
+  const { data: watchList } = useWatchList(user?.uid);
+
+  if (coin === undefined) {
+    // suspense mode always returns response of fetcher
+    throw new Error("Coin is undefined");
+  }
+
+  if (watchList === undefined) {
+    // suspense mode always returns response of fetcher
+    throw new Error("Watch list not found");
+  }
+
+  const coins = watchList.coins;
 
   const handleAddToWatchList = async () => {
+    if (!user?.uid) return;
+
     try {
       const data = { coins: [...coins, coin?.id] };
-      await useUpdateWatchList(user?.uid || "", data);
+      await useUpdateWatchList(user?.uid, data);
 
       setAlert({
         open: true,
@@ -121,63 +134,73 @@ const CoinPage = () => {
   };
 
   return (
-    <Container>
-      <Sidebar>
-        <Image src={coin?.image.large} alt={coin?.name} height="200" />
-        <Heading variant="h3">{coin?.name}</Heading>
-        <Typography
-          variant="subtitle1"
-          sx={{
-            width: "100%",
-            fontFamily: "Montserrat",
-            padding: "25px",
-            paddingBottom: "15px",
-            paddingTop: 0,
-            textAlign: "justify",
-          }}
-        >
-          {/* eslint-disable-next-line @typescript-eslint/naming-convention */}
-          <span dangerouslySetInnerHTML={{ __html: coin?.description.en.split(". ")[0] + "." }} />
-        </Typography>
-        <MarketData>
-          <Flex>
-            <Heading variant="h5">Rank:</Heading>
-            &nbsp; &nbsp;
-            <GoldTypography variant="h5">{numberWithCommas(coin?.market_cap_rank)}</GoldTypography>
-          </Flex>
+    <Suspense fallback={<LinearProgress style={{ backgroundColor: "gold" }} />}>
+      <Container>
+        <Sidebar>
+          <Image src={coin?.image.large} alt={coin?.name} height="200" />
+          <Heading variant="h3">{coin?.name}</Heading>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              width: "100%",
+              fontFamily: "Montserrat",
+              padding: "25px",
+              paddingBottom: "15px",
+              paddingTop: 0,
+              textAlign: "justify",
+            }}
+          >
+            {/* eslint-disable-next-line @typescript-eslint/naming-convention */}
+            <span dangerouslySetInnerHTML={{ __html: coin?.description.en.split(". ")[0] + "." }} />
+          </Typography>
+          <MarketData>
+            <Flex>
+              <Heading variant="h5">Rank:</Heading>
+              &nbsp; &nbsp;
+              <GoldTypography variant="h5">{numberWithCommas(coin?.market_cap_rank)}</GoldTypography>
+            </Flex>
 
-          <Flex>
-            <Heading variant="h5">Current Price:</Heading>
-            &nbsp; &nbsp;
-            <GoldTypography variant="h5">
-              {symbol} {numberWithCommas(coin?.market_data.current_price[currency])}
-            </GoldTypography>
-          </Flex>
-          <Flex>
-            <Heading variant="h5">Market Cap:</Heading>
-            &nbsp; &nbsp;
-            <GoldTypography variant="h5">
-              {symbol} {numberWithCommas(coin?.market_data.market_cap[currency].toString().slice(0, -6))}M
-            </GoldTypography>
-          </Flex>
-          {user && (
-            <Button
-              variant="outlined"
-              style={{
-                width: "100%",
-                height: 40,
-                backgroundColor: isInWatchList ? "#DF2E2E" : "#EEBC1D",
-                fontWeight: "bold",
-              }}
-              onClick={handleClick}
-            >
-              {isInWatchList ? "Remove from Watch List" : "Add to Watch List"}
-            </Button>
-          )}
-        </MarketData>
-      </Sidebar>
-      <CoinInfo coin={coin} />
-    </Container>
+            <Flex>
+              <Heading variant="h5">Current Price:</Heading>
+              &nbsp; &nbsp;
+              <GoldTypography variant="h5">
+                {symbol} {numberWithCommas(coin?.market_data.current_price[currency])}
+              </GoldTypography>
+            </Flex>
+            <Flex>
+              <Heading variant="h5">Market Cap:</Heading>
+              &nbsp; &nbsp;
+              <GoldTypography variant="h5">
+                {symbol} {numberWithCommas(coin?.market_data.market_cap[currency].toString().slice(0, -6))}M
+              </GoldTypography>
+            </Flex>
+            {user && (
+              <Button
+                variant="outlined"
+                style={{
+                  width: "100%",
+                  height: 40,
+                  backgroundColor: isInWatchList ? "#DF2E2E" : "#EEBC1D",
+                  fontWeight: "bold",
+                }}
+                onClick={handleClick}
+              >
+                {isInWatchList ? "Remove from Watch List" : "Add to Watch List"}
+              </Button>
+            )}
+          </MarketData>
+        </Sidebar>
+        <Suspense
+          fallback={
+            <Center>
+              <CircularProgress style={{ color: "gold" }} size={250} thickness={1} />
+            </Center>
+          }
+        >
+          <CoinInfo coin={coin} />
+        </Suspense>
+      </Container>
+    </Suspense>
   );
 };
 
