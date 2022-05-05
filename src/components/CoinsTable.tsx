@@ -1,6 +1,5 @@
 import {
   Container,
-  LinearProgress,
   Pagination,
   Paper,
   Table,
@@ -13,10 +12,9 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/system";
-import React, { Suspense, useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Center } from "@/components/UI/Center";
 import { useCurrencySelector, useCurrencyState } from "@/globalStates/currencyState";
 import { useCoinList } from "@/usecases/coin";
 import { numberWithCommas } from "@/utils";
@@ -88,86 +86,78 @@ export const CoinsTable: React.FC = () => {
         onChange={handleChangeSearch}
       />
       <TableContainer component={Paper}>
-        <Suspense
-          fallback={
-            <Center>
-              <LinearProgress style={{ backgroundColor: "gold" }} />
-            </Center>
-          }
-        >
-          <Table aria-label="simple table">
-            <TableHead sx={{ backgroundColor: "#EEBC1D" }}>
-              <TableRow>
-                {["Coin", "Price", "24h Change", "Market Cap"].map((head) => (
-                  <TableCell
-                    sx={{
-                      color: "black",
-                      fontWeight: "700",
-                      fontSize: "1.15rem",
-                      fontFamily: "Montserrat",
-                    }}
-                    key={head}
-                    align={head === "Coin" ? "left" : "right"}
-                  >
-                    {head}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
+        <Table aria-label="simple table">
+          <TableHead sx={{ backgroundColor: "#EEBC1D" }}>
+            <TableRow>
+              {["Coin", "Price", "24h Change", "Market Cap"].map((head) => (
+                <TableCell
+                  sx={{
+                    color: "black",
+                    fontWeight: "700",
+                    fontSize: "1.15rem",
+                    fontFamily: "Montserrat",
+                  }}
+                  key={head}
+                  align={head === "Coin" ? "left" : "right"}
+                >
+                  {head}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
 
-            <TableBody>
-              {filteredCoins?.slice((page - 1) * 10, (page - 1) * 10 + 10).map((row) => {
-                const isProfit = row.price_change_percentage_24h > 0;
-                return (
-                  <TableRow
-                    onClick={() => handleNavigate(row.id)}
+          <TableBody>
+            {filteredCoins?.slice((page - 1) * 10, (page - 1) * 10 + 10).map((row) => {
+              const isProfit = row.price_change_percentage_24h > 0;
+              return (
+                <TableRow
+                  onClick={() => handleNavigate(row.id)}
+                  sx={{
+                    backgroundColor: "#16171a",
+                    cursor: "pointer",
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
+                    "&:hover": {
+                      backgroundColor: "#131111",
+                    },
+                    fontFamily: "Montserrat",
+                  }}
+                  key={row.name}
+                >
+                  <TableCell
+                    component="th"
+                    scope="row"
                     sx={{
-                      backgroundColor: "#16171a",
-                      cursor: "pointer",
-                      // eslint-disable-next-line @typescript-eslint/naming-convention
-                      "&:hover": {
-                        backgroundColor: "#131111",
-                      },
-                      fontFamily: "Montserrat",
+                      display: "flex",
+                      gap: "15px",
                     }}
-                    key={row.name}
                   >
-                    <TableCell
-                      component="th"
-                      scope="row"
-                      sx={{
-                        display: "flex",
-                        gap: "15px",
-                      }}
-                    >
-                      <CoinImage src={row?.image} alt={row.name} height="50" />
-                      <Coin>
-                        <Symbol>{row.symbol}</Symbol>
-                        <CoinName>{row.name}</CoinName>
-                      </Coin>
-                    </TableCell>
-                    <TableCell align="right">
-                      {symbol} {numberWithCommas(row.current_price.toFixed(2))}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        color: isProfit ? "rgb(14, 203, 129)" : "red",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {isProfit && "+"}
-                      {row.price_change_percentage_24h.toFixed(2)}%
-                    </TableCell>
-                    <TableCell align="right">
-                      {symbol} {numberWithCommas(row.market_cap.toString().slice(0, -6))}M
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </Suspense>
+                    <CoinImage src={row?.image} alt={row.name} height="50" />
+                    <Coin>
+                      <Symbol>{row.symbol}</Symbol>
+                      <CoinName>{row.name}</CoinName>
+                    </Coin>
+                  </TableCell>
+                  <TableCell align="right">
+                    {symbol} {numberWithCommas(row.current_price.toFixed(2))}
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{
+                      color: isProfit ? "rgb(14, 203, 129)" : "red",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {isProfit && "+"}
+                    {row.price_change_percentage_24h.toFixed(2)}%
+                  </TableCell>
+                  <TableCell align="right">
+                    {symbol} {numberWithCommas(row.market_cap.toString().slice(0, -6))}M
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
       </TableContainer>
 
       <Pagination
