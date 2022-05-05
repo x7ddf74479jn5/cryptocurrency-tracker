@@ -4,7 +4,6 @@ import { styled } from "@mui/system";
 import { useNavigate } from "react-router-dom";
 
 import { isCurrency } from "@/globalStates/currencyState";
-import { useCurrencySelector } from "@/globalStates/currencyState";
 import { useCurrencyMutator, useCurrencyState } from "@/globalStates/currencyState";
 import { useUserState } from "@/globalStates/userState";
 
@@ -21,7 +20,6 @@ export const Header = () => {
   const user = useUserState();
   const currency = useCurrencyState();
   const setCurrency = useCurrencyMutator();
-  const {} = useCurrencySelector();
 
   const handleSetCurrency = (e: SelectChangeEvent) => {
     const c = e.target.value;
@@ -49,7 +47,6 @@ export const Header = () => {
           >
             Crypto Tracker
           </Typography>
-          {/* <Button color="inherit">Login</Button> */}
           <Select
             variant="outlined"
             labelId="demo-simple-select-label"
