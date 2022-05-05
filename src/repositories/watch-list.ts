@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 
 import { db, getConverter } from "@/lib/firebase";
 import type { WatchList } from "@/models/watch-list";
-import { watchListSchema } from "@/models/watch-list";
+import { defaultWatchList, watchListSchema } from "@/models/watch-list";
 
 const watchListConverter = getConverter<WatchList>(watchListSchema.parse);
 
@@ -12,9 +12,9 @@ export const getWatchListDocRef = (uid: string) => {
 };
 
 export const getWatchList = async (ref: DocumentReference<WatchList> | null) => {
-  if (!ref) return null;
+  if (!ref) return defaultWatchList;
   const doc = await getDoc(ref);
-  return doc.data();
+  return doc.data() ?? defaultWatchList;
 };
 
 export const updateWatchList = async (ref: DocumentReference<WatchList>, data: PartialWithFieldValue<WatchList>) => {

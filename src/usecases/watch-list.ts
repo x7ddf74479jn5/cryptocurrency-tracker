@@ -8,7 +8,7 @@ const watchListCacheKey = createCacheKeyGenerator("watchList")();
 
 export const useWatchList = (uid: string | undefined) => {
   const watchListDocRef = uid ? getWatchListDocRef(uid) : null;
-  return useSWR(uid ? watchListCacheKey : null, () => getWatchList(watchListDocRef));
+  return useSWR<WatchList>(watchListCacheKey, () => getWatchList(watchListDocRef));
 };
 
 export const useUpdateWatchList = async (uid: string, data: Partial<WatchList>) => {

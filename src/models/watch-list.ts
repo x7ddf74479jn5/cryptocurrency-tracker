@@ -6,3 +6,7 @@ export const watchListSchema = z.object({
 });
 
 export type WatchList = z.infer<typeof watchListSchema>;
+
+export const defaultWatchList: WatchList = {
+  coins: [],
+};
