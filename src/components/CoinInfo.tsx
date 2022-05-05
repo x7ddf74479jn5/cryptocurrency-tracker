@@ -13,7 +13,7 @@ import { SelectButton } from "./SelectButton";
 Chart.register(...registerables);
 
 const Container = styled("div")(({ theme }) => ({
-  width: "75%",
+  width: "100%",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",

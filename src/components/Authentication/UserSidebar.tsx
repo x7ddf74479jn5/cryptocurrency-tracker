@@ -1,6 +1,6 @@
 import { Avatar, Button, Drawer } from "@mui/material";
 import { styled } from "@mui/system";
-import React, { Suspense, useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { AiFillDelete } from "react-icons/ai";
 
 import { useAlertMutator } from "@/globalStates/alertState";
@@ -94,6 +94,7 @@ export const UserSidebar: React.FC = () => {
   const { data: watchList } = useWatchList(user?.uid);
 
   if (watchList === undefined) {
+    return null;
     // suspense mode always returns response of fetcher
     throw new Error("Watch list not found");
   }
@@ -154,7 +155,7 @@ export const UserSidebar: React.FC = () => {
   };
 
   return (
-    <Suspense fallback={<div>loading...</div>}>
+    <div>
       {(["right"] as const).map((anchor) => (
         <React.Fragment key={anchor}>
           <Avatar
@@ -183,26 +184,24 @@ export const UserSidebar: React.FC = () => {
                 />
                 <ProfileName>{user.displayName || user.email}</ProfileName>
                 <WatchList>
-                  <Suspense fallback={<div>loading...</div>}>
-                    <WatchListHeading>WatchList</WatchListHeading>
-                    {coins.map((coin) => {
-                      if (watchList?.coins.includes(coin.id))
-                        return (
-                          <CoinWrapper key={coin.id}>
-                            <span>{coin.name}</span>
-                            <CoinName>
-                              {symbol} {numberWithCommas(coin.current_price.toFixed(2))}
-                              <AiFillDelete
-                                style={{ cursor: "pointer" }}
-                                fontSize="16"
-                                onClick={() => handleRemoveFromWatchList(coin)}
-                              />
-                            </CoinName>
-                          </CoinWrapper>
-                        );
-                      else return null;
-                    })}
-                  </Suspense>
+                  <WatchListHeading>WatchList</WatchListHeading>
+                  {coins.map((coin) => {
+                    if (watchList?.coins.includes(coin.id))
+                      return (
+                        <CoinWrapper key={coin.id}>
+                          <span>{coin.name}</span>
+                          <CoinName>
+                            {symbol} {numberWithCommas(coin.current_price.toFixed(2))}
+                            <AiFillDelete
+                              style={{ cursor: "pointer" }}
+                              fontSize="16"
+                              onClick={() => handleRemoveFromWatchList(coin)}
+                            />
+                          </CoinName>
+                        </CoinWrapper>
+                      );
+                    else return null;
+                  })}
                 </WatchList>
               </Profile>
               <Button
@@ -222,6 +221,6 @@ export const UserSidebar: React.FC = () => {
           </Drawer>
         </React.Fragment>
       ))}
-    </Suspense>
+    </div>
   );
 };

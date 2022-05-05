@@ -40,6 +40,13 @@ const Sidebar = styled("div")(({ theme }) => ({
   borderRight: "2px solid grey",
 }));
 
+const Chart = styled("div")(({ theme }) => ({
+  width: "70%",
+  [theme.breakpoints.down("md")]: {
+    width: "100%",
+  },
+}));
+
 const MarketData = styled("div")(({ theme }) => ({
   alignSelf: "start",
   padding: "25px",
@@ -190,15 +197,17 @@ const CoinPage: React.FC = () => {
             )}
           </MarketData>
         </Sidebar>
-        <Suspense
-          fallback={
-            <Center>
-              <CircularProgress style={{ color: "gold" }} size={250} thickness={1} />
-            </Center>
-          }
-        >
-          <CoinInfo coin={coin} />
-        </Suspense>
+        <Chart>
+          <Suspense
+            fallback={
+              <Center>
+                <CircularProgress style={{ color: "gold" }} size={250} thickness={1} />
+              </Center>
+            }
+          >
+            <CoinInfo coin={coin} />
+          </Suspense>
+        </Chart>
       </Container>
     </Suspense>
   );

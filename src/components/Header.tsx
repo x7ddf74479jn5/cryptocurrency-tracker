@@ -1,6 +1,7 @@
 import type { SelectChangeEvent } from "@mui/material";
 import { AppBar, Container, MenuItem as MUIMenuItem, Select, Toolbar, Typography } from "@mui/material";
 import { styled } from "@mui/system";
+import { Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { isCurrency } from "@/globalStates/currencyState";
@@ -64,7 +65,13 @@ export const Header = () => {
             <MenuItem value="usd">USD</MenuItem>
             <MenuItem value="jpy">JPY</MenuItem>
           </Select>
-          {user ? <UserSidebar /> : <AuthModal />}
+          {user ? (
+            <Suspense fallback={<></>}>
+              <UserSidebar />
+            </Suspense>
+          ) : (
+            <AuthModal />
+          )}
         </Toolbar>
       </Container>
     </AppBar>
